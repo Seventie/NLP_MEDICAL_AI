@@ -75,13 +75,30 @@ export default function DrugSearch() {
     }
   ];
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setIsSearching(true);
-    // TODO: Connect to your actual drug dataset API
-    setTimeout(() => {
+    
+    try {
+      const params = new URLSearchParams();
+      if (searchQuery) params.append('q', searchQuery);
+      if (rxOtcFilter !== 'all') params.append('rxOtc', rxOtcFilter);
+      if (pregnancyCategoryFilter !== 'all') params.append('pregnancyCategory', pregnancyCategoryFilter);
+      if (csaFilter !== 'all') params.append('csa', csaFilter);
+      if (alcoholFilter !== 'all') params.append('alcohol', alcoholFilter);
+      if (drugClassFilter) params.append('drugClass', drugClassFilter);
+
+      const response = await fetch(`/api/drugs/search?${params.toString()}`);
+      const data = await response.json();
+      
+      // For now, show mock results until drug database is connected
+      // Replace with: setResults(data.results || []);
       setResults(mockResults);
+    } catch (error) {
+      console.error('Drug search error:', error);
+      setResults([]);
+    } finally {
       setIsSearching(false);
-    }, 500);
+    }
   };
 
   const clearFilters = () => {
@@ -212,7 +229,7 @@ export default function DrugSearch() {
                     <SelectContent>
                       <SelectItem value="all">All</SelectItem>
                       <SelectItem value="X">X - Interacts with Alcohol</SelectItem>
-                      <SelectItem value="">No Interaction</SelectItem>
+                      <SelectItem value="none">No Interaction</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

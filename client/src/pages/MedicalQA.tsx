@@ -19,15 +19,31 @@ export default function MedicalQA() {
     setAnswer("");
     setSources([]);
 
-    // TODO: Connect to actual RAG model endpoint
-    // Simulating API call
-    setTimeout(() => {
-      setAnswer(
-        `Based on the medical literature, ${question.toLowerCase().includes('symptom') ? 'these symptoms' : 'this condition'} requires professional evaluation. The MedQuAD dataset indicates that proper diagnosis involves multiple factors including patient history, physical examination, and potentially diagnostic tests. Please consult with a healthcare provider for personalized medical advice.`
-      );
-      setSources(["MedQuAD-NIH", "MedQuAD-CDC", "Medical Literature Review"]);
+    try {
+      const response = await fetch('/api/medical-qa', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question }),
+      });
+
+      const data = await response.json();
+      
+      if (data.error) {
+        setAnswer(data.answer || 'An error occurred. Please ensure your RAG model is configured.');
+        setSources(data.sources || []);
+      } else {
+        setAnswer(data.answer || 'No answer received from the model.');
+        setSources(data.sources || []);
+      }
+    } catch (error) {
+      console.error('Error querying RAG model:', error);
+      setAnswer('Failed to connect to the medical Q&A service. Please ensure your RAG model is running.');
+      setSources([]);
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   return (

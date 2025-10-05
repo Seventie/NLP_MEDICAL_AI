@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { modelManager } from "./models/modelLoader";
 
 const app = express();
 app.use(express.json());
@@ -37,7 +38,13 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  const server = await registerRoutes(app);
+  try {
+    // Load AI models before starting the server
+    console.log('\n🤖 Initializing AI Models...\n');
+    await modelManager.loadModels();
+    console.log('\n✨ AI Models Ready!\n');
+
+    const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -67,5 +74,30 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    log(`🚀 AI models loaded and ready to serve requests`);
   });
+
+  // Graceful shutdown
+  process.on('SIGTERM', async () => {
+    console.log('\n🛑 SIGTERM received, shutting down gracefully...');
+    await modelManager.shutdown();
+    server.close(() => {
+      console.log('✅ Server closed');
+      process.exit(0);
+    });
+  });
+
+  process.on('SIGINT', async () => {
+    console.log('\n🛑 SIGINT received, shutting down gracefully...');
+    await modelManager.shutdown();
+    server.close(() => {
+      console.log('✅ Server closed');
+      process.exit(0);
+    });
+  });
+
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
 })();

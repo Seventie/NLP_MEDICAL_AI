@@ -44,23 +44,32 @@ export default function Recommendations() {
     setIsLoading(true);
     setRecommendations([]);
 
-    // TODO: Connect to actual recommendation model endpoint
-    // Simulating API call
-    setTimeout(() => {
-      setRecommendations([
-        {
-          name: "Acetaminophen",
-          dosage: "500mg every 6 hours",
-          precautions: "Do not exceed 4000mg per day. Avoid alcohol.",
+    try {
+      const response = await fetch('/api/recommendations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        {
-          name: "Ibuprofen",
-          dosage: "400mg every 8 hours",
-          precautions: "Take with food. Not for patients with stomach ulcers.",
-        },
-      ]);
+        body: JSON.stringify({ 
+          symptoms: selectedSymptoms,
+          additionalInfo: additionalInfo 
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.error) {
+        console.error('Recommendation error:', data.message);
+        // Show error state or fallback
+      } else {
+        setRecommendations(data.medications || []);
+      }
+    } catch (error) {
+      console.error('Error getting recommendations:', error);
+      // Show error state
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   return (
