@@ -4,6 +4,7 @@ import { useTheme } from "./ThemeProvider";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
   const [, setLocation] = useLocation();
@@ -102,38 +103,59 @@ export default function Navbar() {
         </div>
       </div>
 
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t">
-          <div className="px-4 py-3 space-y-3">
-            <form onSubmit={handleQuickSearch} className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Quick drug search..."
-                value={quickSearch}
-                onChange={(e) => setQuickSearch(e.target.value)}
-                className="pl-9"
-                data-testid="input-mobile-search"
-              />
-            </form>
-            {navItems.map((item) => (
-              <Link key={item.path} href={item.path}>
-                <a
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`block px-3 py-2 rounded-lg text-base font-medium hover-elevate ${
-                    location === item.path
-                      ? "text-primary"
-                      : "text-muted-foreground"
-                  }`}
-                  data-testid={`link-mobile-${item.label.toLowerCase().replace(' ', '-')}`}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div 
+            className="md:hidden border-t overflow-hidden"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="px-4 py-3 space-y-3">
+              <motion.form 
+                onSubmit={handleQuickSearch} 
+                className="relative"
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+              >
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Quick drug search..."
+                  value={quickSearch}
+                  onChange={(e) => setQuickSearch(e.target.value)}
+                  className="pl-9"
+                  data-testid="input-mobile-search"
+                />
+              </motion.form>
+              {navItems.map((item, index) => (
+                <motion.div
+                  key={item.path}
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.3, delay: 0.1 + (index * 0.05) }}
                 >
-                  {item.label}
-                </a>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
+                  <Link href={item.path}>
+                    <a
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`block px-3 py-2 rounded-lg text-base font-medium hover-elevate ${
+                        location === item.path
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                      }`}
+                      data-testid={`link-mobile-${item.label.toLowerCase().replace(' ', '-')}`}
+                    >
+                      {item.label}
+                    </a>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

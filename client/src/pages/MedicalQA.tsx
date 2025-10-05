@@ -3,7 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Send, Brain, FileText } from "lucide-react";
+import { Loader2, Send, Brain, FileText, Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function MedicalQA() {
   const [question, setQuestion] = useState("");
@@ -47,92 +48,170 @@ export default function MedicalQA() {
   };
 
   return (
-    <div className="min-h-screen py-12">
+    <motion.div 
+      className="min-h-screen py-12"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">Medical Q&A</h1>
+        <motion.div 
+          className="mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <h1 className="text-4xl font-bold mb-4 flex items-center gap-3">
+            <Sparkles className="w-8 h-8 text-primary" />
+            Medical Q&A
+          </h1>
           <p className="text-lg text-muted-foreground">
             Ask medical questions and receive AI-powered answers backed by the MedQuAD dataset
           </p>
-        </div>
+        </motion.div>
 
-        <Card className="p-6 mb-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Your Medical Question
-              </label>
-              <Textarea
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="e.g., What are the common symptoms of diabetes?"
-                className="min-h-32 resize-none"
-                disabled={isLoading}
-                data-testid="input-question"
-              />
-              <p className="text-sm text-muted-foreground mt-2">
-                {question.length}/500 characters
-              </p>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isLoading || !question.trim()}
-              className="w-full"
-              data-testid="button-submit-question"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 w-4 h-4 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 w-4 h-4" />
-                  Get Answer
-                </>
-              )}
-            </Button>
-          </form>
-        </Card>
-
-        {(answer || isLoading) && (
-          <Card className="p-6">
-            <div className="flex items-start gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Brain className="w-5 h-5 text-primary" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <Card className="p-6 mb-8 hover-elevate">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Your Medical Question
+                </label>
+                <Textarea
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  placeholder="e.g., What are the common symptoms of diabetes?"
+                  className="min-h-32 resize-none transition-all focus:ring-2 focus:ring-primary"
+                  disabled={isLoading}
+                  data-testid="input-question"
+                />
+                <motion.p 
+                  className="text-sm text-muted-foreground mt-2"
+                  animate={{ 
+                    color: question.length > 450 ? "rgb(239 68 68)" : "rgb(115 115 115)" 
+                  }}
+                >
+                  {question.length}/500 characters
+                </motion.p>
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold mb-2">AI Response</h3>
+
+              <Button
+                type="submit"
+                disabled={isLoading || !question.trim()}
+                className="w-full group"
+                data-testid="button-submit-question"
+              >
                 {isLoading ? (
-                  <div className="space-y-2">
-                    <div className="h-4 bg-muted rounded animate-pulse" />
-                    <div className="h-4 bg-muted rounded animate-pulse w-5/6" />
-                    <div className="h-4 bg-muted rounded animate-pulse w-4/6" />
-                  </div>
+                  <>
+                    <Loader2 className="mr-2 w-4 h-4 animate-spin" />
+                    Processing...
+                  </>
                 ) : (
-                  <p className="text-muted-foreground" data-testid="text-answer">{answer}</p>
+                  <>
+                    <Send className="mr-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    Get Answer
+                  </>
                 )}
-              </div>
-            </div>
-
-            {sources.length > 0 && (
-              <div className="pt-4 border-t">
-                <div className="flex items-center gap-2 mb-2">
-                  <FileText className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Sources</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {sources.map((source, index) => (
-                    <Badge key={index} variant="secondary" data-testid={`badge-source-${index}`}>
-                      {source}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
+              </Button>
+            </form>
           </Card>
-        )}
+        </motion.div>
+
+        <AnimatePresence>
+          {(answer || isLoading) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              transition={{ duration: 0.4 }}
+            >
+              <Card className="p-6">
+                <div className="flex items-start gap-3 mb-4">
+                  <motion.div 
+                    className="p-2 rounded-lg bg-primary/10"
+                    animate={{ 
+                      scale: isLoading ? [1, 1.1, 1] : 1,
+                    }}
+                    transition={{ 
+                      duration: 1.5, 
+                      repeat: isLoading ? Infinity : 0 
+                    }}
+                  >
+                    <Brain className="w-5 h-5 text-primary" />
+                  </motion.div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold mb-2">AI Response</h3>
+                    {isLoading ? (
+                      <div className="space-y-2">
+                        <motion.div 
+                          className="h-4 bg-muted rounded" 
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                        />
+                        <motion.div 
+                          className="h-4 bg-muted rounded w-5/6"
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
+                        />
+                        <motion.div 
+                          className="h-4 bg-muted rounded w-4/6"
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
+                        />
+                      </div>
+                    ) : (
+                      <motion.p 
+                        className="text-muted-foreground" 
+                        data-testid="text-answer"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        {answer}
+                      </motion.p>
+                    )}
+                  </div>
+                </div>
+
+                {sources.length > 0 && (
+                  <motion.div 
+                    className="pt-4 border-t"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.2 }}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <FileText className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm font-medium">Sources</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {sources.map((source, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.3, delay: index * 0.1 }}
+                        >
+                          <Badge 
+                            variant="secondary" 
+                            data-testid={`badge-source-${index}`}
+                            className="hover:scale-105 transition-transform cursor-pointer"
+                          >
+                            {source}
+                          </Badge>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="mt-8 p-4 bg-muted/50 rounded-lg border">
           <p className="text-sm text-muted-foreground">
@@ -142,6 +221,6 @@ export default function MedicalQA() {
           </p>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
