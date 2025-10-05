@@ -10,6 +10,7 @@ import Home from "@/pages/Home";
 import MedicalQA from "@/pages/MedicalQA";
 import Recommendations from "@/pages/Recommendations";
 import Research from "@/pages/Research";
+import DrugDatabase from "@/pages/DrugDatabase";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/qa" component={MedicalQA} />
       <Route path="/recommendations" component={Recommendations} />
       <Route path="/research" component={Research} />
+      <Route path="/drugs" component={DrugDatabase} />
       <Route component={NotFound} />
     </Switch>
   );
