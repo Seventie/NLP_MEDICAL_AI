@@ -101,36 +101,41 @@ function searchDrugs(query: {
   
   // Filter by rx_otc
   if (query.rxOtc) {
+    const rxOtcFilter = query.rxOtc.toLowerCase();
     results = results.filter(drug => 
-      (drug.rx_otc || '').toLowerCase() === query.rxOtc.toLowerCase()
+      (drug.rx_otc || '').toLowerCase() === rxOtcFilter
     );
   }
   
   // Filter by pregnancy category
   if (query.pregnancyCategory) {
+    const pregnancyCategoryFilter = query.pregnancyCategory.toLowerCase();
     results = results.filter(drug => 
-      (drug.pregnancy_category || '').toLowerCase() === query.pregnancyCategory.toLowerCase()
+      (drug.pregnancy_category || '').toLowerCase() === pregnancyCategoryFilter
     );
   }
   
   // Filter by CSA schedule
   if (query.csa) {
+    const csaFilter = query.csa.toLowerCase();
     results = results.filter(drug => 
-      (drug.csa || '').toLowerCase() === query.csa.toLowerCase()
+      (drug.csa || '').toLowerCase() === csaFilter
     );
   }
   
   // Filter by alcohol interaction
   if (query.alcohol) {
+    const alcoholFilter = query.alcohol.toLowerCase();
     results = results.filter(drug => 
-      (drug.alcohol || '').toLowerCase() === query.alcohol.toLowerCase()
+      (drug.alcohol || '').toLowerCase() === alcoholFilter
     );
   }
   
   // Filter by drug class
   if (query.drugClass) {
+    const drugClassFilter = query.drugClass.toLowerCase();
     results = results.filter(drug => 
-      (drug.drug_class || '').toLowerCase().includes(query.drugClass.toLowerCase())
+      (drug.drug_class || '').toLowerCase().includes(drugClassFilter)
     );
   }
   
