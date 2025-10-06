@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { modelManager } from "./models/modelLoader";
-import fs from 'fs/promises';
+import fs from 'fs';
 import path from 'path';
 import csv from 'csv-parser';
 
@@ -36,14 +36,33 @@ async function loadDrugDatabase() {
     await new Promise<void>((resolve, reject) => {
       fs.createReadStream(csvPath)
         .pipe(csv())
-        .on('data', (data: DrugRecord) => results.push(data))
+        .on('data', (data: any) => {
+          // Convert the parsed CSV row to DrugRecord
+          const record: DrugRecord = {
+            drug_name: data.drug_name || data['Drug Name'] || '',
+            indication: data.indication || data['Indication'] || '',
+            side_effects: data.side_effects || data['Side Effects'] || '',
+            dosage: data.dosage || data['Dosage'] || '',
+            route: data.route || data['Route'] || '',
+            rx_otc: data.rx_otc || data['RX/OTC'] || '',
+            pregnancy_category: data.pregnancy_category || data['Pregnancy Category'] || '',
+            csa: data.csa || data['CSA'] || '',
+            alcohol: data.alcohol || data['Alcohol'] || '',
+            drug_class: data.drug_class || data['Drug Class'] || '',
+            ...data // Include any additional fields
+          };
+          results.push(record);
+        })
         .on('end', () => {
           drugDatabase = results;
           isDatabaseLoaded = true;
           console.log(`📊 Loaded ${drugDatabase.length} drug records`);
           resolve();
         })
-        .on('error', reject);
+        .on('error', (error) => {
+          console.error('Error parsing CSV:', error);
+          reject(error);
+        });
     });
   } catch (error) {
     console.error('Error loading drug database:', error);
@@ -231,7 +250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Calculate statistics
-      const stats = {
+      const stats: any = {
         total_drugs: drugDatabase.length,
         rx_otc_distribution: {},
         pregnancy_categories: {},
